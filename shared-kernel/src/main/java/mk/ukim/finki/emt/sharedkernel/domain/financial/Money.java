@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NonNull;
 import mk.ukim.finki.emt.sharedkernel.domain.base.ValueObject;
 
+import java.util.Objects;
+
 
 @Embeddable
 @Getter
@@ -18,8 +20,8 @@ public class Money implements ValueObject {
     private final double amount;
 
     protected Money() {
+        this.amount = 0.0;
         this.currency = null;
-        this.amount = 0;
     }
 
     public Money(@NonNull Currency currency, @NonNull double amount) {
@@ -27,31 +29,40 @@ public class Money implements ValueObject {
         this.amount = amount;
     }
 
-    // Factory method - креирање на нов објект
-    public static Money valueOf(Currency currency, double amount) {
-        return new Money(currency, amount);
+    public static Money valueOf(Currency currency, int amount) {
+        return new Money(currency,amount);
     }
 
-    // Додавање на парична вредност
     public Money add(Money money) {
         if (!currency.equals(money.currency)) {
-            throw new IllegalArgumentException("Cannot add different currencies");
+            throw new IllegalArgumentException("Cannot add two Money objects with different currencies");
         }
-        return new Money(currency, amount + money.amount);
+        return new Money(currency,amount + money.amount);
     }
 
-    // Одземање на парична вредност
     public Money subtract(Money money) {
         if (!currency.equals(money.currency)) {
-            throw new IllegalArgumentException("Cannot subtract different currencies");
+            throw new IllegalArgumentException("Cannot add two Money objects with different currencies");
         }
-        return new Money(currency, amount - money.amount);
+        return new Money(currency,amount - money.amount);
     }
 
-    // Множење на парична вредност
-    public Money multiply(int m) {
-        return new Money(currency, amount * m);
+    public Money multiply(int m)  {
+        return new Money(currency,amount*m);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Money money = (Money) o;
+        return amount == money.amount && currency == money.currency;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(currency, amount);
+    }
 
 }
+

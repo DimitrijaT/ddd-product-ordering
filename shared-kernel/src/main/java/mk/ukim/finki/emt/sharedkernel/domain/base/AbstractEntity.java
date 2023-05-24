@@ -57,6 +57,3 @@ public class AbstractEntity<ID extends DomainObjectId> {
     }
 }
 
-
-
-

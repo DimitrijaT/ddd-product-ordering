@@ -1,6 +1,8 @@
 package mk.ukim.finki.emt.ordermanagement.service.impl;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
 import mk.ukim.finki.emt.ordermanagement.domain.exceptions.OrderIdNotExistException;
 import mk.ukim.finki.emt.ordermanagement.domain.exceptions.OrderItemIdNotExistException;
@@ -11,11 +13,11 @@ import mk.ukim.finki.emt.ordermanagement.domain.repository.OrderRepository;
 import mk.ukim.finki.emt.ordermanagement.service.OrderService;
 import mk.ukim.finki.emt.ordermanagement.service.forms.OrderForm;
 import mk.ukim.finki.emt.ordermanagement.service.forms.OrderItemForm;
+import mk.ukim.finki.emt.sharedkernel.Infra.DomainEventPublisher;
+import mk.ukim.finki.emt.sharedkernel.domain.events.orders.OrderItemCreated;
+import mk.ukim.finki.emt.sharedkernel.domain.events.orders.OrderItemRemoved;
 import org.springframework.stereotype.Service;
 
-
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +31,9 @@ public class OrderServiceImpl implements OrderService {
 
 
     private final OrderRepository orderRepository;
+
+    private final DomainEventPublisher domainEventPublisher;
+
     private final Validator validator;
 
     @Override
@@ -39,6 +44,11 @@ public class OrderServiceImpl implements OrderService {
             throw new ConstraintViolationException("The order form is not valid", constraintViolations);
         }
         var newOrder = orderRepository.saveAndFlush(toDomainObject(orderForm));
+
+
+        newOrder.getOrderItemList()
+                .forEach(item -> domainEventPublisher
+                        .publish(new OrderItemCreated(item.getProductId().getId(), item.getQuantity())));
         return newOrder.getId();
     }
 
@@ -63,6 +73,9 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow(OrderIdNotExistException::new);
         order.addItem(orderItemForm.getProduct(), orderItemForm.getQuantity());
         orderRepository.saveAndFlush(order);
+
+
+        domainEventPublisher.publish(new OrderItemCreated(orderItemForm.getProduct().getId().getId(), orderItemForm.getQuantity()));
     }
 
     @Override
@@ -70,5 +83,6 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId).orElseThrow(OrderIdNotExistException::new);
         order.removeItem(orderItemId);
         orderRepository.saveAndFlush(order);
+//        domainEventPublisher.publish(new OrderItemRemoved(orderItemForm.getProduct().getId().getId(), orderItemForm.getQuantity()));
     }
 }

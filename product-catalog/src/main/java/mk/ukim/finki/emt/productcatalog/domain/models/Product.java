@@ -4,12 +4,14 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import lombok.Getter;
 import mk.ukim.finki.emt.productcatalog.domain.valueobjects.Quantity;
 import mk.ukim.finki.emt.sharedkernel.domain.base.AbstractEntity;
 import mk.ukim.finki.emt.sharedkernel.domain.financial.Money;
 
 
 @Entity
+@Getter
 public class Product extends AbstractEntity<ProductId> {
     private String productName;
 
