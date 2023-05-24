@@ -4,12 +4,16 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NonNull;
 import mk.ukim.finki.emt.ordermanagement.domain.valueobjects.ProductId;
 import mk.ukim.finki.emt.sharedkernel.domain.base.AbstractEntity;
+import mk.ukim.finki.emt.sharedkernel.domain.base.DomainObjectId;
 import mk.ukim.finki.emt.sharedkernel.domain.financial.Money;
 
 @Entity
 @Table(name = "order_item")
+@Getter
 public class OrderItem extends AbstractEntity<OrderItemId> {
 
     private Money itemPrice;
@@ -19,6 +23,20 @@ public class OrderItem extends AbstractEntity<OrderItemId> {
 
     @AttributeOverride(name = "id", column = @Column(name = "product_id"))
     private ProductId productId;
+
+    public OrderItem() {
+    }
+
+    public Money subtotal() {
+        return itemPrice.multiply(quantity);
+    }
+
+    public OrderItem(@NonNull ProductId productId, @NonNull Money itemPrice, int qty) {
+        super(DomainObjectId.randomId(OrderItemId.class));
+        this.productId = productId;
+        this.itemPrice = itemPrice;
+        this.quantity = qty;
+    }
 
 }
 

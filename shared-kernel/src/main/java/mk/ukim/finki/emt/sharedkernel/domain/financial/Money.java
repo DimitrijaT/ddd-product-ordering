@@ -22,18 +22,18 @@ public class Money implements ValueObject {
         this.amount = 0;
     }
 
-    public Money (@NonNull Currency currency, @NonNull double amount) {
+    public Money(@NonNull Currency currency, @NonNull double amount) {
         this.currency = currency;
         this.amount = amount;
     }
 
     // Factory method - креирање на нов објект
-    public static Money valueOf (Currency currency, double amount) {
+    public static Money valueOf(Currency currency, double amount) {
         return new Money(currency, amount);
     }
 
     // Додавање на парична вредност
-    public Money add (Money money) {
+    public Money add(Money money) {
         if (!currency.equals(money.currency)) {
             throw new IllegalArgumentException("Cannot add different currencies");
         }
@@ -41,7 +41,7 @@ public class Money implements ValueObject {
     }
 
     // Одземање на парична вредност
-    public Money subtract (Money money) {
+    public Money subtract(Money money) {
         if (!currency.equals(money.currency)) {
             throw new IllegalArgumentException("Cannot subtract different currencies");
         }
@@ -49,12 +49,9 @@ public class Money implements ValueObject {
     }
 
     // Множење на парична вредност
-    public Money multiply (int m) {
+    public Money multiply(int m) {
         return new Money(currency, amount * m);
     }
-
-
-
 
 
 }
